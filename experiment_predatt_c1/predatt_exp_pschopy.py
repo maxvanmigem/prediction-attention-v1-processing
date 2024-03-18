@@ -917,7 +917,7 @@ for sec in range(n_sections):
                         terminate_task()
                     win.close()
                     core.quit()
-
+        
         block_count+= 1
         cross.autoDraw = False
         # Pause recordings
