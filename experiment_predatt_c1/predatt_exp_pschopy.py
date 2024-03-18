@@ -751,6 +751,7 @@ trial_count = 1
 block_count = 1
 hits = 0
 misses = 0
+false_fire = 0
 should_recal = 'no'
 
 ####################################################
@@ -854,13 +855,17 @@ for sec in range(n_sections):
             keys = event.getKeys(timeStamped=trial_clock)
             t_trial = trial_clock.getTime()*1000
             # Calculate hit rate
+            adjusted_c_trials = catch_trials[sec][sec_trial] -1
             if catch_trials[sec][sec_trial] > 0:
-                adjusted_c_trials = catch_trials[sec][sec_trial] -1
                 if keys:
                     if (keys[-1][1]-stimulus_times[adjusted_c_trials]  < .5):
                         hits += 1  
                 else:
-                    misses += 1          
+                    misses += 1
+            if catch_trials[sec][sec_trial] == 0:
+                if keys:
+                    false_fire += 1
+
             #store data
             trials.addData('LocalTime_DDMMYY_HMS', 
                         str(time.localtime()[2]) + '/' + str(time.localtime()[1]) + '/' + str(time.localtime()[0]) 
@@ -870,6 +875,9 @@ for sec in range(n_sections):
             trials.addData('participant', info['Participant ID (***)'])
             trials.addData('gender', info['Gender'])
             trials.addData('age', info['Age'])
+            trials.addData('handed', info['Dominant hand'])
+            trials.addData('intruct_lang', info['Language'])
+            trials.addData('loc_quad', info['Localised Quadrant'])
             trials.addData('trial', (trial_count)) #Python starts indexing at 
             trials.addData('start_position',start_pos[bl])
             trials.addData('trial_direction',tr_direction[bl,sec][ind])
@@ -910,14 +918,12 @@ for sec in range(n_sections):
             sec_trial+= 1
             if len(keys)>= 1:
                 if keys[-1][0] == 'escape':
-                    with open('my_list.pkl', 'wb') as file:
-                        pickle.dump(trigger_time_list, file)
                     print(trigger_time_list)
                     if eye_tracking:
                         terminate_task()
                     win.close()
                     core.quit()
-        
+        core.wait(1)
         block_count+= 1
         cross.autoDraw = False
         # Pause recordings
@@ -926,9 +932,7 @@ for sec in range(n_sections):
             el_tracker.stopRecording() #this is typically done for each bloc
 
 
-with open('my_list.pkl', 'wb') as file:
-    pickle.dump(trigger_time_list, file)
-print(trigger_time_list)
+
 
 # Disconnect, download the EDF file, then terminate the task
 if eye_tracking:
