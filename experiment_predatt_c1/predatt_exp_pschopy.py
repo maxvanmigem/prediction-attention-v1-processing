@@ -27,11 +27,11 @@ mode = 'default'   #'default'/'DemoMode' #affects nr of trials per block (50%)
 eye_tracking = False #True/False
 
 #options
-n_trials = 20 # per block
+n_trials = 28 # per block
 n_odd = 7  # per block
 n_catch = 13 # per section
 
-n_blocks = 10  # per section has to be divisible by 4        
+n_blocks = 15  # per section        
 n_sections = 2 # divides experiment into attended vs unattended sections 
 
 #to check problem
@@ -932,9 +932,6 @@ for sec in range(n_sections):
         eegTriggerSend(int(254),lab=lab) # 200 is the start-recording command in the biosemi config file
         if eye_tracking:
             el_tracker.stopRecording() #this is typically done for each bloc
-
-
-
 
 # Disconnect, download the EDF file, then terminate the task
 if eye_tracking:
