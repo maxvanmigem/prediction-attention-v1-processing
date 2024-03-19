@@ -27,11 +27,11 @@ mode = 'default'   #'default'/'DemoMode' #affects nr of trials per block (50%)
 eye_tracking = False #True/False
 
 #options
-n_trials = 28 # per block
+n_trials = 20 # per block
 n_odd = 7  # per block
 n_catch = 13 # per section
 
-n_blocks = 15  # per section has to be divisible by 4        
+n_blocks = 10  # per section has to be divisible by 4        
 n_sections = 2 # divides experiment into attended vs unattended sections 
 
 #to check problem
@@ -110,12 +110,12 @@ catch_colour = 'red'
 
 test_instruction = ('Test')
 
-start_instruction =[('Welcome and thank you for participating to this experiment.\n\n' + 
+start_instruction =[('Welcome and thank you for participating in this experiment.\n\n' + 
                      'Please press SPACE to continue.'),
                     ('Welkom en bedankt om deel te nemen aan dit experiment.\n\n' +
                      'Druk op SPATIE om verder te gaan.')]
 
-stim_attend_instr = [('Your task now is to press SPACE as quickly as possible when the LINES turns red.\n\n'  +
+stim_attend_instr = [('Your task now is to press SPACE as quickly as possible when the LINES turn red.\n\n'  +
                       'We will now calibrate the eye tracker. \n\n Please press SPACE to continue.'),
                      ('Jouw taak is nu om zo snel mogelijk op SPATIE te drukken wanneer de LIJNTJES rood worden.\n\n' + 
                       'We gaan nu de eye-tracker calibreren. \n\n Druk op SPATIE om verder te gaan.')]
@@ -315,7 +315,7 @@ def stimPresentation(stimulus, stim_dur, isi_dur,iti_dur, start_quad, direction,
     return stim_times, trial_time
 
 
-def displayMessage(msg= None, block_msg = False, lang= 0, block_num = None, hits = None, misses = None ):
+def displayMessage(msg= None, block_msg = False, lang= 0, block_num = None, hits = None, misses = None, wrong = None):
     """ 
     Function to display instruction, score and other text
     """
@@ -325,9 +325,9 @@ def displayMessage(msg= None, block_msg = False, lang= 0, block_num = None, hits
             lang_bl_instr = [('Block 1\n\n Press SPACE to start the main experiment.'),
                              ('Blok 1\n\n Druk op SPATIE om te beginnen met het hoofdexperiment.')]
         else:
-            lang_bl_instr = [(f'Block {block_num} \n Hits: {hits}   Misses: {misses}' +
+            lang_bl_instr = [(f'Block {block_num} \n\n Hits: {hits}\nMisses: {misses}\nWrong/too slow: {wrong}' +
                             '\n\nYou can take a quick break if you want. \n\n Press SPACE to continue the experiment.'),
-                            (f'Blok {block_num} \n Raak: {hits}    Gemist: {misses} ' +
+                            (f'Blok {block_num} \n\n Raak: {hits}\nGemist: {misses}\nVerkeerd/te laat: {wrong}' +
                             '\n\n Je kan nu een korte pauze nemen. \n\n Druk op SPATIE om met het experiment verder te doen.')]
         message.text = lang_bl_instr[lang]
 
@@ -799,7 +799,9 @@ for sec in range(n_sections):
         pylink.pumpDelay(100) #wait for 100 ms to cache some samples
 
     for bl in range(n_blocks):
-        displayMessage(block_msg=True, lang = language, block_num= block_count, hits=hits , misses=misses)
+        displayMessage(block_msg=True, lang = language,
+                        block_num= block_count, 
+                        hits=hits , misses=misses, wrong= false_fire)
         # Start recoding trigger
         eegTriggerSend(int(253),lab=lab) # 200 is the start-recording command in the biosemi config file
         # Trigger for block
