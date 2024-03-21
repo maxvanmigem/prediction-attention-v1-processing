@@ -1,6 +1,5 @@
 """
 Created on Tue Oct 24 2023
-last updated on Wed Feb 21 2024
 @author: Max Van Migem
 """
 import numpy as np
@@ -54,7 +53,7 @@ info =  {'Gender': ['Male','Female', 'X'],'Language':['English','Dutch'],
 already_exists = True
 while already_exists:   #keep asking for a new name when the data file already exists
      dlg = gui.DlgFromDict(dictionary=info, title='Predatt Experiment')  #display the gui
-     file_name = os.getcwd() + '/data/' + 'pilot_predatt_participant_' + info['Participant ID (***)']   #determine the file name (os.getcwd() is where your script is saved)
+     file_name = os.getcwd() + '/data/' + 'predatt_participant_' + info['Participant ID (***)']   #determine the file name (os.getcwd() is where your script is saved)
 
      if not dlg.OK:
          core.quit()
@@ -67,7 +66,7 @@ while already_exists:   #keep asking for a new name when the data file already e
          suggested_file_name = file_name
          while os.path.isfile(suggested_file_name + '.csv'): #provide a suggestion for another ParticipantNr
              suggested_participant_nr += 1
-             suggested_file_name = os.getcwd() + '/data/' + 'feedback_theta_participant' + str(suggested_participant_nr)
+             suggested_file_name = os.getcwd() + '/data/' + 'predatt_participant_' + str(suggested_participant_nr)
 
          dlg2.addText('This Participant Nr is in use already, please select another.\n\nParticipant Nr ' 
                       +  str(suggested_participant_nr) + ' is still available.')
@@ -700,16 +699,16 @@ stimset = generateStim(linelength=35,linewidth=2, coord_array=grid, colour='whit
 
 # Counterbalancing on subject number
 # Uneven nr.'s will have anticlockwise as oddball condition and vice versa
-# subject_odd = 'anticlockwise'
-# if int(info['Participant ID (***)']) % 2 == 0:
-subject_odd = 'clockwise'
+subject_odd = 'anticlockwise'
+if int(info['Participant ID (***)']) % 2 == 0:
+    subject_odd = 'clockwise'
 
 # Different alternation scheme for attention section
 subject_section_order= ['stim','cross']
 attention_cond = ['attended','unattended']
-# if int(info['Participant ID (***)']) % 4 < 2: # e.g. 0,0,1,1,0,0,1,1,...
-#     subject_section_order = ['cross','stim']
-#     attention_cond = ['unattended','attended']
+if int(info['Participant ID (***)']) % 4 < 2: # e.g. 0,0,1,1,0,0,1,1,...
+    subject_section_order = ['cross','stim']
+    attention_cond = ['unattended','attended']
 
 
 # Init empty condition arrays
@@ -880,6 +879,7 @@ for sec in range(n_sections):
             trials.addData('handed', info['Dominant hand'])
             trials.addData('intruct_lang', info['Language'])
             trials.addData('loc_quad', info['Localised Quadrant'])
+            trials.addData('subject_odd', subject_odd)
             trials.addData('trial', (trial_count)) #Python starts indexing at 
             trials.addData('start_position',start_pos[bl])
             trials.addData('trial_direction',tr_direction[bl,sec][ind])
