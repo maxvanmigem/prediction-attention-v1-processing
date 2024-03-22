@@ -873,6 +873,7 @@ for sec in range(n_sections):
                         + '_' + str(time.localtime()[3]) + ':' + str(time.localtime()[4]) + ':' + str(time.localtime()[5])) #HMS = hour min sec
             trials.addData('lab', lab)
             trials.addData('mode', mode)
+            trials.addData('eye_tracking', eye_tracking)
             trials.addData('participant', info['Participant ID (***)'])
             trials.addData('gender', info['Gender'])
             trials.addData('age', info['Age'])
