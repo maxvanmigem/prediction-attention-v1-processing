@@ -6,13 +6,13 @@ import numpy as np
 import os
 import time
 import sys
-# import pylink #the last is to communicate with the eyetracker
+import pylink #the last is to communicate with the eyetracker
 import pickle
 from psychopy import parallel, visual, gui, data, event, core, monitors
 from psychopy.visual import ShapeStim
 from psychopy import logging
 from math import fabs
-# from EyeLinkCoreGraphicsPsychoPy import EyeLinkCoreGraphicsPsychoPy #this are functions used to run the eyetracker calibration and validation
+from EyeLinkCoreGraphicsPsychoPy import EyeLinkCoreGraphicsPsychoPy #this are functions used to run the eyetracker calibration and validation
 
 
 ####################################################
