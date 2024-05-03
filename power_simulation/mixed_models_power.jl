@@ -37,7 +37,7 @@ show(m0.θ)
 θ = createθ(m0; subj=re_subj, item= re_item)
 show(θ)
 
-σ = 1.05;
+σ = 0.72;
 β = [4.02, 0.278];
 
 coefnames(m0)

@@ -50,6 +50,12 @@ info =  {'Gender': ['Male','Female', 'X'],'Language':['English','Dutch'],
          'Age': '', 'Dominant hand':['left','right','ambi'],
          'Participant ID (***)': '', 'Localised Quadrant':[0,1,2,3]}
 
+counter_start_quad = False
+
+localised_quad = int(info['Localised Quadrant'])
+if counter_start_quad:
+    counter_dict = {0:2,1:3,2:0,3:1}
+
 already_exists = True
 while already_exists:   #keep asking for a new name when the data file already exists
      dlg = gui.DlgFromDict(dictionary=info, title='Predatt Experiment')  #display the gui
@@ -732,7 +738,7 @@ for section in range(n_sections):
         trial_list.append({'tr_direction': tr_direction[block]})
 
 # A list with the length of n_blocks containing the start position for each block
-start_pos = generateBlockStarts(n_blocks=n_blocks, uniq_quadrant= int(info['Localised Quadrant']),sub_odd=subject_odd)
+start_pos = generateBlockStarts(n_blocks=n_blocks, uniq_quadrant= localised_quad ,sub_odd=subject_odd)
 
 # ExperimentHandler and TrialHandler
 this_exp = data.ExperimentHandler(dataFileName = file_name)
