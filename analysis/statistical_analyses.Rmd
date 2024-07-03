@@ -1,0 +1,84 @@
+---
+title: "Attention and prediction on V1/C1"
+author: "Max Van Migem"
+date: "2024-07-03"
+---
+
+```{r packages}
+library(car)
+library(tidyr)
+library(lme4)
+library(lmerTest)
+library(optimx)
+```
+
+## load data
+
+```{r data}
+df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3_df.csv')
+df_regular <- subset(df, expectation == 'regular')
+df_odd <- subset(df, expectation == 'odd')
+df_attended <- subset(df, attention == 'attended')
+df_unattended <- subset(df, attention == 'unattended')
+```
+
+## Set data types
+
+```{r}
+df$subject <- as.factor(df$subject)
+df$attention <- as.factor(df$attention)
+df$expectation <- as.factor(df$expectation)
+
+df_attended$subject <- as.factor(df_unattended$subject)
+df_attended$expectation <- as.factor(df_unattended$expectation)
+
+df_unattended$subject <- as.factor(df_attended$subject)
+df_unattended$expectation <- as.factor(df_attended$expectation)
+
+df_regular$subject <- as.factor(df_regular$subject)
+df_regular$attention <- as.factor(df_regular$attention)
+
+df_odd$subject <- as.factor(df_odd$subject)
+df_odd$attention <- as.factor(df_odd$attention)
+
+options(contrasts = c("contr.sum", "contr.poly"))
+```
+
+## the full model
+```{r}
+fit.p3 <-  lmer(mean_amp ~ 1 + expectation + attention + attention*expectation +
+                           (1+ expectation | subject) + (attention | subject) + (attention*expectation | subject),
+  data = df, 
+  control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
+
+summary(fit.p3)
+contrasts(df$attention)
+contrasts(df$expectation)
+anova(fit.p3)
+```
+
+## the attended model
+```{r}
+fit.p3.attended <-  lmer(mean_amp ~ 1 + expectation +
+                           (1 | subject),
+  data = df_attended, 
+  control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
+
+summary(fit.p3.attended)
+contrasts(df$attention)
+contrasts(df$expectation)
+anova(fit.p3.attended)
+```
+
+## the unattended model
+```{r}
+fit.p3.unattended <-  lmer(mean_amp ~ 1 + expectation +
+                           (1 | subject),
+  data = df_unattended, 
+  control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
+
+summary(fit.p3.unattended)
+contrasts(df$attention)
+contrasts(df$expectation)
+anova(fit.p3.unattended)
+```
