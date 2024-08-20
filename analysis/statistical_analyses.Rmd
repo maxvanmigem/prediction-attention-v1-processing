@@ -47,7 +47,7 @@ options(contrasts = c("contr.sum", "contr.poly"))
 ## the full model
 ```{r}
 fit.p3 <-  lmer(mean_amp ~ 1 + expectation + attention + attention*expectation +
-                           (1+ expectation | subject) + (attention | subject) + (attention*expectation | subject),
+                           (1+ expectation | subject) + (attention | subject),
   data = df, 
   control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
 
