@@ -20,6 +20,14 @@ df_regular <- subset(df, expectation == 'regular')
 df_odd <- subset(df, expectation == 'odd')
 df_attended <- subset(df, attention == 'attended')
 df_unattended <- subset(df, attention == 'unattended')
+
+```
+```{r data}
+df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_df.csv')
+df_regular <- subset(df, expectation == 'regular')
+df_odd <- subset(df, expectation == 'odd')
+df_attended <- subset(df, attention == 'attended')
+df_unattended <- subset(df, attention == 'unattended')
 ```
 
 ## Set data types
@@ -46,15 +54,38 @@ options(contrasts = c("contr.sum", "contr.poly"))
 
 ## the full model
 ```{r}
-fit.p3 <-  lmer(mean_amp ~ 1 + expectation + attention + attention*expectation +
+fit.c1_gen <- lmer(general_up_amp ~ 1 + expectation + attention + attention*expectation +
                            (1+ expectation | subject) + (attention | subject),
   data = df, 
   control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
 
-summary(fit.p3)
+summary(fit.c1_gen)
 contrasts(df$attention)
 contrasts(df$expectation)
-anova(fit.p3)
+anova(fit.c1_gen)
+```
+```{r}
+fit.c1_tail <- lmer(tailored_amp ~ 1 + expectation + attention + attention*expectation +
+                           (1+ expectation | subject) + (attention | subject),
+  data = df, 
+  control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
+
+summary(fit.c1_tail)
+contrasts(df$attention)
+contrasts(df$expectation)
+anova(fit.c1_tail)
+```
+```
+```{r}
+fit.c1_ultra <- lmer(ultra_up_amp ~ 1 + expectation + attention + attention*expectation +
+                           (1+ expectation*attention | subject),
+  data = df, 
+  control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
+
+summary(fit.c1_ultra)
+contrasts(df$attention)
+contrasts(df$expectation)
+anova(fit.c1_ultra)
 ```
 
 ## the attended model
