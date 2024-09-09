@@ -62,30 +62,27 @@ fit.c1_gen <- lmer(general_up_amp ~ 1 + expectation + attention + attention*expe
 summary(fit.c1_gen)
 contrasts(df$attention)
 contrasts(df$expectation)
-anova(fit.c1_gen)
 ```
 ```{r}
-fit.c1_tail <- lmer(tailored_amp ~ 1 + expectation + attention + attention*expectation +
-                           (1+ expectation | subject) + (attention | subject),
+fit.c1_tail <- lmer(tailored_up_amp ~ 1 + expectation + attention + attention*expectation +
+                           (1| subject) + (attention | subject)+ (expectation| subject) ,
   data = df, 
-  control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
+  control = lmerControl(optimizer = c("bobyqa"), optCtrl=list(maxfun=2e9)))
 
 summary(fit.c1_tail)
 contrasts(df$attention)
 contrasts(df$expectation)
-anova(fit.c1_tail)
 ```
 ```
 ```{r}
-fit.c1_ultra <- lmer(ultra_up_amp ~ 1 + expectation + attention + attention*expectation +
-                           (1+ expectation*attention | subject),
+fit.c1_ultra <- lmer(ultra_down_amp ~ 1 + expectation + attention + attention*expectation +
+                           (1| subject) + (attention | subject)+ (expectation| subject) ,
   data = df, 
   control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
 
 summary(fit.c1_ultra)
 contrasts(df$attention)
 contrasts(df$expectation)
-anova(fit.c1_ultra)
 ```
 
 ## the attended model
