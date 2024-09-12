@@ -23,7 +23,7 @@ df_unattended <- subset(df, attention == 'unattended')
 
 ```
 ```{r data}
-df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_df.csv')
+df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_long_df.csv')
 df_regular <- subset(df, expectation == 'regular')
 df_odd <- subset(df, expectation == 'odd')
 df_attended <- subset(df, attention == 'attended')
@@ -36,6 +36,7 @@ df_unattended <- subset(df, attention == 'unattended')
 df$subject <- as.factor(df$subject)
 df$attention <- as.factor(df$attention)
 df$expectation <- as.factor(df$expectation)
+df$visual_field <- as.factor(df$visual_field)
 
 df_attended$subject <- as.factor(df_unattended$subject)
 df_attended$expectation <- as.factor(df_unattended$expectation)
@@ -54,14 +55,15 @@ options(contrasts = c("contr.sum", "contr.poly"))
 
 ## the full model
 ```{r}
-fit.c1_gen <- lmer(general_up_amp ~ 1 + expectation + attention + attention*expectation +
-                           (1+ expectation | subject) + (attention | subject),
+fit.c1_gen <- lmer(tailored_amp ~ 1 + expectation + attention + visual_field + 
+                            attention*expectation + attention*visual_field + expectation*visual_field +
+                           (1 | subject) +(expectation | subject) + (attention | subject) + (visual_field | subject),
   data = df, 
   control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
-
 summary(fit.c1_gen)
 contrasts(df$attention)
 contrasts(df$expectation)
+contrasts(df$visual_field)
 ```
 ```{r}
 fit.c1_tail <- lmer(tailored_up_amp ~ 1 + expectation + attention + attention*expectation +
