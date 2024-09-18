@@ -1,9 +1,13 @@
 using DataFrames
+using CSV
 using Unfold
 using UnfoldMakie, CairoMakie
 using UnfoldSim
 
-data, evts = UnfoldSim.predef_eeg()
+data_input = "C:/Users/mvmigem/Documents/data/project_1/preprocessed/mastoid_ref_csv/raw_mastoidref_01.csv"
+events_input = "C:/Users/mvmigem/Documents/data/project_1/preprocessed/mastoid_ref_csv/events_01.csv"
+data = DataFrame(CSV.File(data_input))
+evts = DataFrame(CSV.File(events_input))
 
 times_cont = range(0,length=200,step=1/100) # we simulated with 100hz for 0.5 seconds
 
@@ -14,9 +18,10 @@ ax.ylabel = "voltage [µV]"
 f
 
 # Unfold supports multi-channel, so we could provide matrix ch x time, which we can create like this from a vector:
-data_r = reshape(data, (1,:))
+data_r = Matrix(data)
+data = Nothing
 # cut the data into epochs
-data_epochs, times = Unfold.epoch(data = data, tbl = evts, τ = (-0.4, 0.8), sfreq = 100); # channel x timesteps x trials
+data_epochs, times = Unfold.epoch(data = data_r, tbl = evts, τ = (-0.1, 0.5), sfreq = 516); # channel x timesteps x trials
 size(data_epochs)
 
 typeof(data_epochs)
