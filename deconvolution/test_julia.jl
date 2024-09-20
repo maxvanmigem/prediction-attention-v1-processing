@@ -20,3 +20,14 @@ data_r = reshape(data, (1,:))
 # cut the data into epochs
 data_epochs, times = Unfold.epoch(data = data, tbl = evts, τ = (-0.4, 0.8), sfreq = 100); # channel x timesteps x trials
 size(data_epochs)
+
+typeof(data_epochs)
+
+f = @formula 0 ~ 1 + condition + continuous # note the formulas left side is `0 ~ ` for technical reasons`
+
+m = fit(UnfoldModel, f, evts, data_epochs, times);
+
+m
+
+first(coeftable(m), 6)
+

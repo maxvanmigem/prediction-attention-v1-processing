@@ -1,39 +1,25 @@
-using DataFrames
-using CSV
 using Unfold
-using UnfoldMakie, CairoMakie
 using UnfoldSim
+using UnfoldMakie,CairoMakie
+using CSV
+using DataFrames
 
-data_input = "C:/Users/mvmigem/Documents/data/project_1/preprocessed/mastoid_ref_csv/raw_mastoidref_01.csv"
-events_input = "C:/Users/mvmigem/Documents/data/project_1/preprocessed/mastoid_ref_csv/events_01.csv"
-data = DataFrame(CSV.File(data_input))
-evts = DataFrame(CSV.File(events_input))
+# data_input = "C:/Users/mvmigem/Documents/data/project_1/preprocessed/mastoid_ref_csv/raw_mastoidref_01.csv"
+# events_input = "C:/Users/mvmigem/Documents/data/project_1/preprocessed/mastoid_ref_csv/events_01.csv"
+# data = DataFrame(CSV.File(data_input))
+# evts = DataFrame(CSV.File(events_input))
 
-times_cont = range(0,length=200,step=1/100) # we simulated with 100hz for 0.5 seconds
+data_1, evts_1 = UnfoldSim.predef_eeg()
 
-f,ax,h = plot(times_cont,data[1:200])
-vlines!(evts[evts.latency .<= 200, :latency] ./ 100;color=:black) # show events, latency in samples!
-ax.xlabel = "time [s]"
-ax.ylabel = "voltage [µV]"
-f
+# select!(data,(:POz))
 
-# Unfold supports multi-channel, so we could provide matrix ch x time, which we can create like this from a vector:
-data_r = Matrix(data)
-data = Nothing
-# cut the data into epochs
-data_epochs, times = Unfold.epoch(data = data_r, tbl = evts, τ = (-0.1, 0.5), sfreq = 516); # channel x timesteps x trials
-size(data_epochs)
+# data_r = vec(Matrix(data))
 
-typeof(data_epochs)
+basisfunction = firbasis(τ=(-0.1,.5),sfreq=100,name="myFIRbasis")
 
+# f = @formula 0 ~ 1 + position + sequence
 f = @formula 0 ~ 1 + condition + continuous # note the formulas left side is `0 ~ ` for technical reasons`
 
-m = fit(UnfoldModel, f, evts, data_epochs, times);
+bf_vec = bfDict = ["stimulus"=>(f1,basisfunction1), "response"=>(f2,basisfunction2)]
 
-m
-
-first(coeftable(m), 6)
-
-results = coeftable(m)
-plot_erp(results)
-
+m = fit(UnfoldModel,bf_vec,evts_1,data_1);
