@@ -36,7 +36,7 @@ plot_erp(results)
 
 design = Dict(:sequence => ["2"],:expectation => ["regular","odd"], :attention => ["attended","unattended"])
 eff = effects(design,m)
-plot_erp(eff; mapping = (; color = :expectation))
+plot_erp(eff; mapping = (; color = :attention))
 
 
 
