@@ -15,8 +15,8 @@ library(optimx)
 ## load data
 
 ```{r data}
-# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3_df.csv')
-df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_long_df.csv')
+df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3_df.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_long_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_galat_long_df.csv')
 ```
 ```{r data}
@@ -106,6 +106,19 @@ fit.p3.unattended <-  lmer(mean_amp ~ 1 + expectation +
   control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
 
 summary(fit.p3.unattended)
+contrasts(df$attention)
+contrasts(df$expectation)z
+
+```
+
+## the unattended model
+```{r}
+fit.p3.regular <-  lmer(mean_amp ~ 1 + attention +
+                           (1 | subject),
+  data = df_odd, 
+  control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
+
+summary(fit.p3.regular)
 contrasts(df$attention)
 contrasts(df$expectation)
 
