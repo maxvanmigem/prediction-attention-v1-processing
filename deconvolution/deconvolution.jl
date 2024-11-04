@@ -18,11 +18,14 @@ raw_path = data_path * "raw-selected/"
 event_dir_list = readdir(event_path)
 raw_dir_list = readdir(raw_path)
 
+# data = DataFrame(CSV.File(raw_path*raw_dir_list[1]))
+# evts = DataFrame(CSV.File(event_path*event_dir_list[1]))
+
 for (evp,rawp) in zip(event_dir_list,raw_dir_list)
 
     # Read in the data
-    data = DataFrame(CSV.File(raw_path*rawp))
-    evts = DataFrame(CSV.File(event_path*evp))
+    # data = DataFrame(CSV.File(raw_path*rawp))
+    # evts = DataFrame(CSV.File(event_path*evp))
     # Change the column names to fit toolbox
     rename!(evts,:sample => :latency)
     filter!(row -> !(row.event_codes == 99),evts)
