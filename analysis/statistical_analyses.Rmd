@@ -15,9 +15,11 @@ library(optimx)
 ## load data
 
 ```{r data}
-df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3_df.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_long_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_galat_long_df.csv')
+df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_oc_fix_df.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_oc_var_df.csv')
 ```
 ```{r data}
 df$subject <- as.factor(df$subject)
@@ -38,7 +40,7 @@ df_down <- subset(df, visual_field == 'down')
 ## the full model
 ```{r}
 # tailored_amp ultra_amp general_amp
-fit.c1_gen <- lmer(ultra_amp ~ 1 + expectation + attention + visual_field + 
+fit.c1_gen <- lmer(baseline_corrected ~ 1 + expectation + attention + visual_field + 
                             attention*expectation + attention*visual_field + expectation*visual_field +
                            (1 | subject) +(expectation | subject) + (attention | subject) + (visual_field | subject),
   data = df, 
@@ -50,7 +52,7 @@ contrasts(df$expectation)
 contrasts(df$visual_field)
 ```
 ```{r}
-fit.c1_up <- lmer(ultra_amp ~ 1 + expectation + attention + attention*expectation +
+fit.c1_up <- lmer(baseline_corrected ~ 1 + expectation + attention + attention*expectation +
                            (1| subject) + (attention | subject) + (expectation| subject),
   data = df_up, 
   control = lmerControl(
@@ -62,7 +64,7 @@ contrasts(df$expectation)
 ```
 ```
 ```{r}
-fit.c1_down <- lmer(ultra_amp ~ 1 + expectation + attention + attention*expectation +
+fit.c1_down <- lmer(baseline_corrected ~ 1 + expectation + attention + attention*expectation +
                            (1| subject) + (attention | subject)+ (expectation| subject) ,
   data = df_down, 
   control = lmerControl(
@@ -76,7 +78,7 @@ contrasts(df$expectation)
 
 ## full model
 ```{r}
-fit.p3.full <-  lmer(mean_amp ~ 1 + attention + expectation + attention*expectation +
+fit.p3.full <-  lmer(baseline_corrected ~ 1 + attention + expectation + attention*expectation +
                            (1 | subject)+ (attention | subject)+ (expectation| subject),
   data = df, 
   control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
