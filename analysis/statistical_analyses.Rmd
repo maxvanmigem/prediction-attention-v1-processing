@@ -21,8 +21,9 @@ library(optimx)
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_oc_fix_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_oc_var_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3a_oc_df.csv')
-df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3b_oc_df.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3b_oc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p1_oc_df.csv')
+df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p2_oc_df.csv')
 
 ```
 ```{r data}
@@ -82,7 +83,7 @@ contrasts(df$expectation)
 
 ## full model
 ```{r}
-fit.p3.full <-  lmer(P3b ~ 1 + attention + expectation + attention*expectation +
+fit.p3.full <-  lmer(contra ~ 1 + attention + expectation + attention*expectation +
                            (1 | subject)+ (attention | subject)+ (expectation| subject),
   data = df, 
   control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
