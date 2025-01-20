@@ -15,8 +15,9 @@ library(optimx)
 ## load data
 
 ```{r data}
-df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3_df.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_long_df.csv')
+df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_long_20ms_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_galat_long_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_oc_fix_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_oc_var_df.csv')
@@ -38,8 +39,8 @@ df_regular <- subset(df, expectation == 'regular')
 df_odd <- subset(df, expectation == 'odd')
 df_attended <- subset(df, attention == 'attended')
 df_unattended <- subset(df, attention == 'unattended')
-# df_up <- subset(df, visual_field == 'up')
-# df_down <- subset(df, visual_field == 'down')
+df_up <- subset(df, visual_field == 'up')
+df_down <- subset(df, visual_field == 'down')
 ```
 
 ## the full model
@@ -69,8 +70,7 @@ contrasts(df$expectation)
 ```
 ```
 ```{r}
-fit.c1_down <- lmer(tailored_amp ~ 1 + expectation + attention + attention*expectation +
-                           (1| subject) + (attention | subject)+ (expectation| subject) ,
+fit.c1_down <- lmer(tailored_amp ~ 1 + expectation + attention,
   data = df_down, 
   control = lmerControl(
   optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
