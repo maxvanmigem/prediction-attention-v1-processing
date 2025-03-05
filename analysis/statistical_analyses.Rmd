@@ -14,8 +14,8 @@ library(lme4)
 library(optimx)
 library(performance)
 library(emmeans)
-library(brms)
-library(rstan)
+# library(brms)
+# library(rstan)
 
 ```
 
@@ -31,16 +31,18 @@ library(rstan)
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p1_oc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p1_oc_nc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/n1_oc_df.csv')
-df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/nc_n1_oc_df.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/nc_n1_oc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p2_oc_df.csv')
+df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/behaviour.csv')
 
 ```
 ```{r data}
 df$subject <- as.factor(df$subject)
+df$participant <- as.factor(df$participant)
 df$attention <- as.factor(df$attention)
 df$expectation <- as.factor(df$expectation)
-# df$visual_field <- as.factor(df$visual_field)
-df$hemisphere <- as.factor(df$hemisphere)
+df$visual_field <- as.factor(df$visual_field)
+# df$hemisphere <- as.factor(df$hemisphere)
 # df$rescaled_genamp = scale(df$general_amp)
 # df$rescaled_tailamp = scale(df$tailored_amp)
 # df$baseline_corrected = scale(df$baseline_corrected)
@@ -63,7 +65,7 @@ df_contra <- subset(df, hemisphere == 'contra')
 ```{r}
 # tailored_amp ultra_amp general_amp, baseline_corrected
 
-f1 <- baseline_corrected ~ 1 + expectation + attention + visual_field + 
+f1 <- tailored_amp ~ 1 + expectation + attention + visual_field + 
                        attention*expectation + attention*visual_field + expectation*visual_field + attention*expectation*visual_field +
                   (1 + attention + expectation + visual_field | subject)
 
@@ -305,12 +307,23 @@ contrasts(df$expectation)
 ## the odd model
 ```{r}
 fit.p3.regular <-  lmer(P3b ~ 1 + attention +
-                           (1 | subject),
+                           (1 attention| subject),
   data = df_odd, 
   control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
 
 summary(fit.p3.regular)
 contrasts(df$attention)
 contrasts(df$expectation)
+
+```
+## the behaviour model
+```{r}
+fit.behaviour <-  lmer(rt ~ 1 + attention +
+                           (1 + attention| participant),
+  data = df, 
+  control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
+
+summary(fit.behaviour)
+contrasts(df$attention)
 
 ```
