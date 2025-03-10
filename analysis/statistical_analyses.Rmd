@@ -32,8 +32,8 @@ library(emmeans)
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p1_oc_nc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/n1_oc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/nc_n1_oc_df.csv')
-# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p2_oc_df.csv')
-df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/behaviour.csv')
+df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p2_oc_df.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/behaviour.csv')
 
 ```
 ```{r data}
@@ -42,7 +42,7 @@ df$participant <- as.factor(df$participant)
 df$attention <- as.factor(df$attention)
 df$expectation <- as.factor(df$expectation)
 df$visual_field <- as.factor(df$visual_field)
-# df$hemisphere <- as.factor(df$hemisphere)
+df$hemisphere <- as.factor(df$hemisphere)
 # df$rescaled_genamp = scale(df$general_amp)
 # df$rescaled_tailamp = scale(df$tailored_amp)
 # df$baseline_corrected = scale(df$baseline_corrected)
@@ -142,7 +142,7 @@ contrasts(df$expectation)
 ```
 
 
-## the P1 model also N1 if you load other df
+## the P1 model also N1 and P2 if you load other df
 ```{r}
 # tailored_amp ultra_amp general_amp
 
@@ -188,30 +188,34 @@ sd(df_att_reg$P3b, na.rm = TRUE)
 
 ```
 
+
 ```{r}
-# tailored_amp ultra_amp general_amp
+f1 <- yhat ~ 1 + expectation  + hemisphere + expectation*hemisphere +
+                  (1 + expectation | subject)
 
-
-f <- yhat ~ 1 + expectation + attention  +
-                        attention*expectation +
-                  (1 + attention + expectation  | subject)
-
-
-fit.c1_1 <- lmer(f,data = df_ipsi, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
-fit.c1_2 <- lmer(f,data = df_contra, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+fit.p2_1 <- lmer(f1,data = df_unattended, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
 # fit.c1_gen <- brm(f,data = df, family = gaussian())
-check_model(fit.c1_1)
-check_model(fit.c1_2)
-anova(fit.c1_1,fit.c1_2)
-summary(fit.c1_1)
-summary(fit.c1_2)
+summary(fit.p2_1)
+
+confint(fit.p3_2, method ="Wald")
 contrasts(df$attention)
 contrasts(df$expectation)
-contrasts(df$visual_field)
-confint(fit.c1_1,method = "Wald")
 
 ```
 
+```{r}
+f1 <- yhat ~ 1 + attention  + hemisphere + attention*hemisphere +
+                  (1 + attention  | subject)
+
+fit.p2_1 <- lmer(f1, data = df_regular, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+# fit.c1_gen <- brm(f,data = df, family = gaussian())
+summary(fit.p2_1)
+
+confint(fit.p3_2, method ="Wald")
+contrasts(df$attention)
+contrasts(df$expectation)
+
+```
 # P3 analysis
 
 ## full model

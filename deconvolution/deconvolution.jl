@@ -6,20 +6,22 @@ using DataFrames
 using Effects
 using StatsModels
 
-el_list = ["Fp1", "AF7", "AF3", "F1", "F3", "F5", "F7", 
-           "FT7", "FC5", "FC3", "FC1", "C1", "C3", "C5", 
-           "T7", "TP7", "CP5", "CP3", "CP1", "P1", "P3", 
-           "P5", "P7", "P9", "PO7", "PO3","O1", "Iz", "Oz",
-           "POz", "Pz", "CPz", "Fpz", "Fp2", "AF8", "AF4",
-           "AFz", "Fz", "F2", "F4", "F6", "F8", "FT8", "FC6",
-           "FC4", "FC2","FCz", "Cz", "C2", "C4", "C6", "T8", 
-           "TP8", "CP6", "CP4", "CP2","P2", "P4", "P6", "P8", 
-           "P10", "PO8", "PO4", "O2"
-           ]
+el_list = ["Pz","POz","PO4","PO3"] #for P3 analysis of seq 1
+# el_list = ["Fp1", "AF7", "AF3", "F1", "F3", "F5", "F7", 
+#            "FT7", "FC5", "FC3", "FC1", "C1", "C3", "C5", 
+#            "T7", "TP7", "CP5", "CP3", "CP1", "P1", "P3", 
+#            "P5", "P7", "P9", "PO7", "PO3","O1", "Iz", "Oz",
+#            "POz", "Pz", "CPz", "Fpz", "Fp2", "AF8", "AF4",
+#            "AFz", "Fz", "F2", "F4", "F6", "F8", "FT8", "FC6",
+#            "FC4", "FC2","FCz", "Cz", "C2", "C4", "C6", "T8", 
+#            "TP8", "CP6", "CP4", "CP2","P2", "P4", "P6", "P8", 
+#            "P10", "PO8", "PO4", "O2"
+#            ]
 for i in el_list
     data_path = "C:/Users/mvmigem/Documents/data/project_1/preprocessed/mastoid_ref_csv/"
     raw_path = data_path * "raw-$i/"
-    destination_path = "C:/Users/mvmigem/Documents/data/project_1/overlap_corrected/$i/"
+    # destination_path = "C:/Users/mvmigem/Documents/data/project_1/overlap_corrected/$i/"
+    destination_path = "C:/Users/mvmigem/Documents/data/project_1/overlap_corrected/seq-1-p3/$i/" # for seq 1 p3 analysis
     if !isdir(destination_path)
         mkdir(destination_path)
         # Data paths
@@ -68,9 +70,9 @@ for i in el_list
 
             setup = string(evts[1,:setup])
             setdown = string(evts[1,:setdown])
-
-            # design = Dict(:sequence =>["2"],:position => ["1","3"] ,:expectation => ["regular","odd"])
-            design = Dict(:sequence =>["2"],:position => [setup,setdown] ,:attention => ["attended","unattended"],:expectation => ["regular","odd"])
+            
+            # design = Dict(:sequence =>["2"],:position => [setup,setdown] ,:attention => ["attended","unattended"],:expectation => ["regular","odd"])
+            design = Dict(:sequence =>["1"],:position => [setup,setdown] ,:attention => ["attended","unattended"]) # for seq 1 anlysis
             eff = effects(design,m)
             eff.subject .= string(evts[1,:subject])
             eff.selected_electrode .= i
