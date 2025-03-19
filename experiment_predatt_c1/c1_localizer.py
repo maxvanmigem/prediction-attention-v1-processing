@@ -13,16 +13,18 @@ from psychopy import parallel, visual, gui, data, event, core, monitors
 from psychopy.visual import ShapeStim
 from psychopy import logging
 from math import fabs
-from EyeLinkCoreGraphicsPsychoPy import EyeLinkCoreGraphicsPsychoPy
+
 
 ####################SELECT THE RIGHT LAB & Mode####################
-lab = 'biosemi'   #'actichamp'/'biosemi'/'none'
+lab = 'none'   #'actichamp'/'biosemi'/'none'
 
-mode = 'default'   #'default'/'DemoMode' #affects nr of trials per block (50%)
+mode = 'default'   #'default'/'test'
 
-eye_tracking = True #True/False
+eye_tracking = False # True/False
 
-sub = 1
+if eye_tracking:
+    from EyeLinkCoreGraphicsPsychoPy import EyeLinkCoreGraphicsPsychoPy #this are functions used to run the eyetracker calibration and validation
+
 ###################################################################
 
 # Define a monitor
@@ -33,7 +35,7 @@ system_monitor = monitors.Monitor('cap_lab_monitor')
 # system_monitor.setDistance(65)
 # system_monitor.save()
 
-# #initialize window#
+# initialize window
 win = visual.Window(fullscr=True,color= (-1, -1, -1), colorSpace = 'rgb', units = 'pix', monitor= system_monitor)
 win.mouseVisible = False
 
@@ -42,7 +44,9 @@ win.mouseVisible = False
 ####################################################
 
 #options
-n_quadreps = 6 # per quad
+n_quadreps = 60 # per quad
+if mode == 'test':
+    n_quadreps = 6
 n_trials = n_quadreps*4
 
 # random generator
@@ -50,6 +54,10 @@ rng = np.random.default_rng(seed=None)
 # array with random jitter for horizontal stim lines (this might have to be a standard array as in the same for everyone)
 stim_jitter_path = os.getcwd()+'/stim_jitter.npy'
 linejitter_arr = np.load(stim_jitter_path)
+
+# Timing
+inter_stimulus_interval= .52
+isi_jitter=.070
 
 ####################################################
 #Create Psychopy simple visual objects
@@ -80,6 +88,11 @@ teststim = ShapeStim(win, vertices=[(0.5,1.0), (1.0,1.0), (0.5,1.0), (1.0,1.0)],
 def generateStimCoordinates(gridcol, gridrow, jitter):
     """
     Generates coordinates used to draw the stimulus lines
+
+    Parameters:
+        gridcol (int): Number of columns in the grid.
+        gridrow (int): Number of rows in the grid.
+        jitter (ndarray): 30x30x2 array that adds variation to the grid coords.
     """
     # Calculate spacing of grid
     x_spacing = 1.0 / (gridcol)
@@ -122,71 +135,30 @@ def generateStimCoordinates(gridcol, gridrow, jitter):
     return coord_array
 
 
-def generateLocalizerStimCoordinates(gridcol, gridrow, jitter):
-    """
-    Generates coordinates used to draw the localizer stimulus lines
-    This is partically the same function as generateStimCoordinates() but for upper and lower visual field
-    instead of quandrant
-    """
-    # Calculate spacing of grid
-    x_spacing = 2.0 / (gridcol)
-    y_spacing = 1.0 / (gridrow)
-
-    # Create an array to store coordinates: every point (x,y) of the grid for every quadrant (4) 
-    coord_array = np.empty(shape = (gridcol,gridrow,2,2),dtype= 'object')
-    field_set = [1,-1]
-
-    # Generate grid coord per quadrant
-    for i,field in enumerate(field_set):
-        # Per row
-        for row in range(gridrow):
-            # Per column
-            for col in range (gridcol):
-
-                grid_x = -1 + col * x_spacing  # grid points
-                grid_y = row * y_spacing
-
-                grid_y = grid_y * field   # which visual field up/down
-
-                coord_array[col,row,0,i] = grid_x  # Store them in big ass array
-                coord_array[col,row,1,i] = grid_y
-
-    # flip the matrices so that they have the 'orientation' corresponding to the quadrant 
-    coord_array[:,:,0,0] = np.flip(coord_array[:,:,0,0], axis=0) 
-    coord_array[:,:,1,0] = np.flip(coord_array[:,:,1,0], axis=0) 
-
-
-    #  Add jitter
-    for i in range(2):
-        coord_array[:,:,:,i] =  coord_array[:,:,:,i] + jitter[:gridcol,:gridrow,:]
-  
-    return coord_array
-
-
-def generateStim(linelength, linewidth ,coord_array, colour, catch_colour, size, fixdistance, localizer = False ):
+def generateStim(linelength, linewidth ,coord_array, size, fixdistance ):
     """ 
-    Generate an ElementArrayStim object consisting of lines on the coordinates for stimulus for each quadrant
-    Then four more arrays are created each representing a catch trial in a separate quadrant
-    Returns a 5x4 array of lists with each list containing the line stimuli for a quadrant
-    If localizer is set to True then it generates a grid in the upper or lower visual field instead of quadrants
+    Generate an ElementArrayStim object consisting of lines on the coordinates 
+    for stimulus for each quadrant position and with differently angled lines
+
+    Parmeters:
+        linelength (int): length of individual lines (pix but can be any unit)
+        linewidth (int): width of individual lines (pix but can be any unit)
+        coord_array (ndarray): set of x and y coords for de sub elements
+        size (int or float): scaling factor
+        fixdistance (int or float): distance of stimulus corner to screen center
     """
-    # This 
-    if localizer:
-        sections = 2
-        dist = fixdistance
-        quads = [[0,1],[0,-1]]
-    else:
-        sections = 4
-        # This is to calculate the distance to the fixation cross
-        dist = np.sqrt(np.square(fixdistance)/2) #pythagoras
-        quads = [[-1,1],[1,1],[1,-1],[-1,-1]]
+    # i.e. quadrants
+    sections = 4
+    # This is to calculate the distance to the fixation cross
+    dist = np.sqrt(np.square(fixdistance)/2) #pythagoras
+    quads = [[-1,1],[1,1],[1,-1],[-1,-1]]
 
     # Get size of grid
     gridcol = np.shape(coord_array)[0]
     gridrow = np.shape(coord_array)[1]
 
-    # Init arrays to store line objects per quadrant and also for every possible catch trial 
-    line_stimuli = np.empty((2,sections), dtype=object)   # 2 types (0 is normal white lines, 1 is catch stim ) and 4 quadrants
+    # Init arrays to store line objects per quadrant
+    line_stimuli = np.empty(sections, dtype=object)    # 4 quadrants
  
     for quad in range(sections):
         n_lines = gridcol*gridrow
@@ -204,43 +176,50 @@ def generateStim(linelength, linewidth ,coord_array, colour, catch_colour, size,
                 it_count += 1
         sizes = np.atleast_2d([linelength,linewidth]).repeat(repeats=n_lines, axis=0)
         # Normal stimuli
-        line_stimuli[0,quad] = visual.ElementArrayStim(win, units='pix',elementTex=None, elementMask='sqr', xys= xys,
+        line_stimuli[quad] = visual.ElementArrayStim(win, units='pix',elementTex=None, elementMask='sqr', xys= xys,
                                            nElements=n_lines, sizes=sizes, colors=(1.0, 1.0, 1.0), colorSpace='rgb')
-        # Catch stimuli
-        line_stimuli[1,quad] = visual.ElementArrayStim(win, units='pix',elementTex=None, elementMask='sqr', xys= xys,
-                                           nElements=n_lines, sizes=sizes, colors=catch_colour, colorSpace='rgb')
 
     return line_stimuli
 
-
-def drawStim(line_stimuli, quad, catch):
-    """ 
-    Draws the stimuli in the correct quadrant
-    Catch = 0 means normal color catch = 1 means catch
-    """
-    # select quadrant and whether this is a catch stim
-    line_stim = line_stimuli[catch,quad] 
-
-    # draw 
-    line_stim.draw()
 
 
 ####################################################
 #Trial display functions
 ####################################################
 
-def fieldLocalizer(field,line_stim, stim_dur, isi_dur, lab=lab):
+
+def drawStim(line_stimuli, quad):
+    """ 
+    Draws the stimuli in the correct quadrant
+    Parmeters:
+        line_stimuli (ndarray): array with psychopy ElementArrayStim objects for every position and slant
+        quad (int): quadrant 0,1,2 or 3 (top-left, top-right, bottom-right and bottom-left respectively)
     """
-    Function for the presentation of localizer which tries to differentiate the C1 for upper and lower visual field
+    # select quadrant and whether this is a catch stim
+    line_stim = line_stimuli[quad] 
+
+    # draw 
+    line_stim.draw()
+
+def stimPresentation(quad,line_stim, stim_dur, isi_dur, lab=lab):
+    """
+    Function for the presentation of localizer which tries to differentiate the different quadrants
+    Stimulus presentation for a single trial
+    Parmeters:
+        quad (int): quadrant 0,1,2 or 3 (top-left, top-right, bottom-right and bottom-left respectively)
+        stimulus (ndarray): array with psychopy ElementArrayStim objects for every position and slant
+        stim_dur (float): stimulus presentation duration in seconds
+        isi_dur (float): inter-stimulus interval in seconds
+        lab (str): determines EEG aspects such as port and trigger
     """
     # Check timing
     stim_clock = core.Clock()
     win.flip()
     stim_clock.reset()
-    # Set eeg trigger here 80 means upper field and 81 means lower field
-    trigger = int(80 + field)
-    # Drawing stim, this should be generated with generateStim() with localizer set to True
-    drawStim(line_stim, field, 0)
+    # Set eeg trigger here 80: top-left quad, 81: top-right quad 82: bottom right and 83: bottom left
+    trigger = int(80 + quad)
+    # Drawing stim, this should be generated with generateStim() 
+    drawStim(line_stim, quad)
     wait = isi_dur/2-stim_clock.getTime()
     core.wait(wait)
     win.flip()
@@ -251,7 +230,7 @@ def fieldLocalizer(field,line_stim, stim_dur, isi_dur, lab=lab):
     stim_timing =stim_clock.getTime() * 1000
     core.wait(isi_dur/2)
 
-    return stim_timing
+    return stim_timing # return isi timing
 
 
 ####################################################
@@ -260,8 +239,14 @@ def fieldLocalizer(field,line_stim, stim_dur, isi_dur, lab=lab):
 
 def generateQuadLocalizerTrials(quad_reps, asynchronous=False, isi=.500 , jitter=.050):
     """
-    Generate triallist for the C1 localizer in the beginning of the experiment this time for each quadrant
+    Generate trial list for the C1 localizer in the beginning of the experiment for each quadrant
     Also provides a list of timings to insert into presentation function when you want an asynchronous onset
+    Parmeters:
+        quad_reps (int): amount of presentations for each quadrant
+        asynchronous (bool): whether you want variable ISI
+        stim_dur (float): stimulus presentation duration in seconds
+        isi (float): inter-stimulus interval in seconds
+        jitter (float): random ofset for ISI
     """
     # Make the proportions and randomize
     localizer_prelist = [0,1,2,3]
@@ -281,10 +266,13 @@ def generateQuadLocalizerTrials(quad_reps, asynchronous=False, isi=.500 , jitter
 #External measurement instruments
 ####################################################
 
-#EEGTriggerSend#
+#EEGTriggerSend
 def eegTriggerSend(eeg_trigger, lab): #need to elaborate
     """
     Sends trigger to EEG recording
+    Parameters:
+        eeg_trigger (int): depends on stimulus position and is generated by selectEEGStimulusTrigger()
+        lab (str): determines EEG aspects such as port and trigger
     """
     if not lab == 'none':
         gsr_port.setData(eeg_trigger)
@@ -297,6 +285,9 @@ def eegTriggerSend(eeg_trigger, lab): #need to elaborate
 def selectEEGStimulusTrigger(start,pos):
     """
     distinguish EEG trigger for stimulus
+    Parameters:
+        start (int): should alway be 0 in localiser 
+        pos (int): stimulus position
     """
     eeg_stim_trigger = int((start+1)*10 + (pos+1))
 
@@ -532,14 +523,16 @@ def checkGazeOnFix():
 
 # Generate main stimuli
 grid = generateStimCoordinates(gridcol=12, gridrow=10, jitter=linejitter_arr)
-stimset = generateStim(linelength=35,linewidth=2, coord_array=grid, colour='white',catch_colour='red',
+stimset = generateStim(linelength=35,linewidth=2, coord_array=grid,
                         size=276, fixdistance=134)
 
-quad_loc_trials, quad_timings = generateQuadLocalizerTrials(quad_reps=n_quadreps,asynchronous=True,isi= .52,jitter=.070) 
+# Generate trial list of random positions and interval timings
+quad_loc_trials, quad_timings = generateQuadLocalizerTrials(quad_reps=n_quadreps,asynchronous=True,
+                                                            isi= inter_stimulus_interval,jitter=isi_jitter) 
 
 # Intermediate message    
 cross.autoDraw = False
-message.text = 'Localizer'
+message.text = 'Localizer Press SPACE'
 message.draw()
 win.flip()
 start_key = event.waitKeys(keyList = ['space','escape'])
@@ -591,7 +584,7 @@ for i in range(n_trials):
             pylink.pumpDelay(100) #wait for 100 ms to cache some samples
             cross.autoDraw =True
     event.clearEvents(eventType = 'keyboard')
-    fieldLocalizer(quad_loc_trials[i],stimset,.1,quad_timings[i])
+    stimPresentation(quad_loc_trials[i],stimset,.1,quad_timings[i])
     # Exit
     keys = event.getKeys()
     if 'escape' in keys:
