@@ -6,8 +6,6 @@ date: "2024-07-03"
 
 ```{r packages}
 library(car)
-library(tidyr)
-
 library(pbkrtest)
 library(lmerTest)
 library(lme4)
@@ -32,8 +30,8 @@ library(emmeans)
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p1_oc_nc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/n1_oc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/nc_n1_oc_df.csv')
-df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p2_oc_df.csv')
-# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/behaviour.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p2_oc_df.csv')
+df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/behaviour.csv')
 
 ```
 ```{r data}
@@ -323,10 +321,10 @@ contrasts(df$expectation)
 ## the behaviour model
 ```{r}
 fit.behaviour <-  lmer(rt ~ 1 + attention +
-                           (1 + attention| participant),
+                           (1 | participant),
   data = df, 
   control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
-
+confint(fit.behaviour, method ="Wald")
 summary(fit.behaviour)
 contrasts(df$attention)
 
