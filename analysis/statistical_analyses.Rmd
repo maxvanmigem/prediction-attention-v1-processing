@@ -33,6 +33,8 @@ library(emmeans)
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p2_oc_df.csv')
 df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/behaviour.csv')
 
+df <- subset(df, !subject %in% c(3, 14, 20))
+
 ```
 ```{r data}
 df$subject <- as.factor(df$subject)
