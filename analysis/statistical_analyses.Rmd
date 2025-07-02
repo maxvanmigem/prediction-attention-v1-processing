@@ -20,18 +20,19 @@ library(emmeans)
 ## load data
 
 ```{r data}
-# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3_df.csv')
+df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3b_uc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_long_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_oc_fix_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_oc_var_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3a_oc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3b_oc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p1_oc_df.csv')
-# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p1_oc_nc_df.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p1_uc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/n1_oc_df.csv')
-# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/nc_n1_oc_df.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/n1_uc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p2_oc_df.csv')
-df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/behaviour.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/behaviour_rt.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/behaviour_acc.csv')
 
 df <- subset(df, !subject %in% c(3, 14, 20))
 
@@ -119,7 +120,7 @@ anova(fit.c1_up1,fit.c1_up2)
 contrasts(df$attention)
 contrasts(df$expectation)
 ```
-```
+
 ```{r}
 f1 <- tailored_amp ~ 1 + expectation + attention  + attention*expectation +
                   (1 + attention + expectation | subject)
@@ -139,24 +140,24 @@ anova(fit.c1_down1,fit.c1_down2)
 contrasts(df$attention)
 contrasts(df$expectation)
 ```
-```
-
-
 ## the P1 model also N1 and P2 if you load other df
 ```{r}
 # tailored_amp ultra_amp general_amp
 
 
-f1 <- yhat ~ 1 + expectation + attention + hemisphere +
-                       attention*expectation + attention*hemisphere + expectation*hemisphere + attention*expectation*hemisphere +
-                  (1 + attention + expectation + hemisphere | subject)
+# f1 <- P1 ~ 1 + expectation + attention + hemisphere +
+#                        attention*expectation + attention*hemisphere + expectation*hemisphere + attention*expectation*hemisphere +
+#                   (1 + attention + expectation + hemisphere | subject)
+f1 <- P1 ~ 1 + expectation + attention +
+                       attention*expectation + 
+                  (1 +  expectation  | subject)
 
-f2 <- yhat ~ 1 + expectation + attention +
+f2 <- N1 ~ 1 + expectation + attention +
                        attention*expectation+
-                  (1 + attention + expectation | subject)
+                  (1  | subject)
 
 fit.c1_1 <- lmer(f1,data = df, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
-fit.c1_2 <- lmer(f2,data = df_contra, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+fit.c1_2 <- lmer(f2,data = df, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
 # fit.c1_gen <- brm(f,data = df, family = gaussian())
 check_model(fit.c1_1)
 check_model(fit.c1_2)
@@ -166,15 +167,15 @@ summary(fit.c1_2)
 contrasts(df$attention)
 contrasts(df$expectation)
 contrasts(df$visual_field)
-confint(fit.c1_1,method = "Wald")
+confint(fit.c1_2,method = "Wald")
 
 ```
 ```{r}
 
-mean(df_attended$yhat, na.rm = TRUE)
-sd(df_attended$yhat, na.rm = TRUE)
-mean(df_unattended$yhat, na.rm = TRUE)
-sd(df_unattended$yhat, na.rm = TRUE)
+mean(df_attended$P1, na.rm = TRUE)
+sd(df_attended$P1, na.rm = TRUE)
+mean(df_unattended$P1, na.rm = TRUE)
+sd(df_unattended$P1, na.rm = TRUE)
 
 mean(df_odd$P3b, na.rm = TRUE)
 sd(df_odd$P3b, na.rm = TRUE)
@@ -223,7 +224,7 @@ contrasts(df$expectation)
 df <- na.omit(df)
 f1 <- P3b ~ 1 + expectation + attention +
                        attention*expectation +
-                  (1 + attention + expectation | subject)
+                  (1 + attention  | subject)
 
 f2 <- P3b ~ 1 + expectation + attention +
                        attention*expectation+
@@ -240,6 +241,11 @@ contrasts(df$attention)
 contrasts(df$expectation)
 emmeans_f1 <- emmeans(fit.p3_2, ~ expectation * attention)
 pairs(emmeans_f1, adjust = "tukey")
+
+mean(df_regular$P3b, na.rm = TRUE)
+sd(df_regular$P3b, na.rm = TRUE)
+mean(df_odd$P3b, na.rm = TRUE)
+sd(df_odd$P3b, na.rm = TRUE)
 ```
 ```{r}
 # tailored_amp ultra_amp general_amp
@@ -258,6 +264,7 @@ summary(bootstrap)
 
 ## the attended model
 ```{r}
+df_attended <- na.omit(df_attended)
 f1 <- P3b ~ 1 + expectation  +
                   (1 + expectation | subject)
 
@@ -278,6 +285,7 @@ contrasts(df$expectation)
 
 ## the unattended model
 ```{r}
+df_unattended <- na.omit(df_unattended)
 f1 <- P3b ~ 1 + expectation  +
                   (1 + expectation | subject)
 
@@ -293,6 +301,7 @@ summary(fit.p3_2)
 confint(fit.p3_2, method ="Wald")
 contrasts(df$attention)
 contrasts(df$expectation)
+
 
 ```
 
@@ -321,13 +330,45 @@ contrasts(df$expectation)
 
 ```
 ## the behaviour model
+# rt
 ```{r}
-fit.behaviour <-  lmer(rt ~ 1 + attention +
+fit.behaviour_rt <-  lmer(rt ~ 1 + attention +
                            (1 | participant),
   data = df, 
   control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
 confint(fit.behaviour, method ="Wald")
 summary(fit.behaviour)
 contrasts(df$attention)
+
+```
+# acc
+```{r}
+fit.behaviour_acc <-  lmer(dprime ~ 1 + attention + expectation + attention*expectation +
+                           (1 | participant),
+  data = df, 
+  control = lmerControl(optimizer = c("Nelder_Mead"), optCtrl=list(maxfun=2e6)))
+confint(fit.behaviour_acc, method ="Wald")
+summary(fit.behaviour_acc)
+contrasts(df$attention)
+
+mean(df_regular$beta, na.rm = TRUE)
+sd(df_regular$beta, na.rm = TRUE)
+mean(df_odd$beta, na.rm = TRUE)
+sd(df_odd$beta, na.rm = TRUE)
+
+```
+
+
+```{r}
+f1 <- dprime ~ 1 + expectation  +
+                  (1 | participant)
+f2 <- dprime ~ 1 + expectation  +
+                  (1 | participant)
+
+fit.behaviour_acc <- lmer(f1,data = df_attended, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+confint(fit.behaviour_acc, method ="Wald")
+summary(fit.behaviour_acc)
+contrasts(df$attention)
+contrasts(df$expectation)
 
 ```
