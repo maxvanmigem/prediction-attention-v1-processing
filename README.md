@@ -1,9 +1,9 @@
 # prediction-attention-v1-processing
-Repository for research project studying the effects of prediction and attention on early visual processing.
-This repositiory contains everything related to this project such as stimulus presentation and behavioural scripts, power simulations, data processing scripts, analyses and modeling scripts
+Repository for a study on the effects of prediction and attention on early visual processing (C1, P1, N1 and P3 ERP components).
+This repositiory contains everything related to this project such as stimulus presentation and behavioural scripts, data processing scripts, deconvolution and statistacal analysis scripts.
 
 ## About
-This model is part of a larger project aiming to uncover the role of predeiction and selective attention in the selection but also the suppression of visual information in early visual processing.
+
 
 ## Team
 
