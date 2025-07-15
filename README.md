@@ -7,21 +7,23 @@ Maximilien Van Migem, Daniele Marianzzo and Gilles Pourtois
 
 ## Setup & Requirements
 
-# Experiment
-Python 3.8.18
-Numpy 1.8.4
-Pandas 2.0.3
+### Experiment
+Python 3.8.18  
+Numpy 1.8.4  
+Pandas 2.0.3  
 Psychopy 2023.2.3
 
-# Analysis
-Python 3.9.18
+
+### Analysis
+Python 3.9.18  
 Numpy 1.26.0
-Matplotlib 3.8.0
+Matplotlib 3.8.0  
 mne 1.8.0
-Pandas 2.1.1
+Pandas 2.1.1  
 Seaborn 0.13.2
 
-Julia 1.11.5
-Unfold
-UnfoldSim
+
+Julia 1.11.5  
+Unfold  
+UnfoldSim  
 DataFrames
