@@ -1,6 +1,4 @@
 using Unfold
-using UnfoldSim
-using UnfoldMakie,CairoMakie
 using CSV
 using DataFrames
 using Effects

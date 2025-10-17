@@ -22,8 +22,10 @@ library(emmeans)
 ```{r data}
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3b_uc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_long_df.csv')
-# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_oc_fix_df.csv')
+df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_oc_fix_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/c1_oc_var_df.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/uc_rerp_c1_fix_df.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/uc_rerp_c1_var_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3a_oc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p3b_oc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p1_oc_df.csv')
@@ -32,7 +34,9 @@ library(emmeans)
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/n1_uc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/p2_oc_df.csv')
 # df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/behaviour_rt.csv')
-df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/behaviour_acc.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/behaviour_acc.csv')
+# df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/behaviour_acc.csv')
+
 
 df <- subset(df, !subject %in% c(3, 14, 20))
 
@@ -66,13 +70,13 @@ df_down <- subset(df, visual_field == 'down')
 ```{r}
 # tailored_amp ultra_amp general_amp, baseline_corrected
 
-f1 <- tailored_amp ~ 1 + expectation + attention + visual_field + 
-                       attention*expectation + attention*visual_field + expectation*visual_field + attention*expectation*visual_field +
-                  (1 + attention + expectation + visual_field | subject)
+f1 <- amp ~ 1 + expectation + attention + visual_field + 
+               attention*expectation*visual_field +
+               (1 + attention + expectation + visual_field | subject)
 
-f2 <- baseline_corrected ~ 1 + expectation + attention + visual_field + 
-                       attention*expectation + attention*visual_field + expectation*visual_field +
-                  (1 | subject)
+f2 <- c1_amp ~ 1 + expectation + attention + visual_field + 
+               attention*expectation*visual_field +
+               (1 | subject)
 
 fit.c1_1 <- lmer(f1,data = df, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
 fit.c1_2 <- lmer(f2,data = df, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
