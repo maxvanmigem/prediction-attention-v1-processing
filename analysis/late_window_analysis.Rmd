@@ -1,0 +1,49 @@
+---
+title: "Late window analysis C1/V1"
+author: "Max Van Migem"
+date: "2025-11-12"
+---
+
+```{r packages}
+library(car)
+library(pbkrtest)
+library(lmerTest)
+library(lme4)
+library(optimx)
+library(performance)
+library(emmeans)
+
+```
+```{r data}
+
+df <- read.csv('C:/Users/mvmigem/Documents/data/project_1/compiled_dataframes/seq4_late.csv')
+
+
+df <- subset(df, !subject %in% c(3, 14, 20))
+
+```
+```{r data}
+df$subject <- as.factor(df$subject)
+df$attention <- as.factor(df$attention)
+
+
+options(contrasts = c("contr.sum", "contr.poly"))
+
+```
+
+## the full model
+```{r}
+# tailored_amp ultra_amp general_amp, baseline_corrected
+
+f1 <- y ~ 1 + attention +
+               (1 | subject)
+
+
+fit.late <- lmer(f1,data = df, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+
+summary(fit.late)
+
+contrasts(df$attention)
+
+confint()
+```
